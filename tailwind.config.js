@@ -105,6 +105,9 @@ module.exports = {
       96: '24rem',
     },
     animation: {
+      'card-flip-correct': 'card-flip-correct 1s ease-in-out forwards',
+      'card-flip-position': 'card-flip-position 1s ease-in-out forwards',
+      'card-flip-incorrect': 'card-flip-incorrect 1s ease-in-out forwards',
       none: 'none',
       spin: 'spin 1s linear infinite',
       ping: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
@@ -550,6 +553,41 @@ module.exports = {
       full: '100%',
     }),
     keyframes: {
+      "card-flip-correct": {
+        '0%': {
+          transform: 'rotateX(0)'
+        },
+        '50%': {
+          transform: 'rotateX(90deg)'
+        },
+        '100%': {
+          transform: 'rotateX(0)',
+          border: '2px solid green',
+        },
+      },
+      "card-flip-position": {
+        '0%': {
+          transform: 'rotateX(0)'
+        },
+        '50%': {
+          transform: 'rotateX(90deg)'
+        },
+        '100%': {
+          transform: 'rotateX(0)',
+          border: '2px solid orange',
+        },
+      },
+      "card-flip-incorrect": {
+        '0%': {
+          transform: 'rotateX(0)'
+        },
+        '50%': {
+          transform: 'rotateX(90deg)'
+        },
+        '100%': {
+          transform: 'rotateX(0)'
+        },
+      },
       spin: {
         to: {
           transform: 'rotate(360deg)',
@@ -839,6 +877,8 @@ module.exports = {
       500: '500ms',
       700: '700ms',
       1000: '1000ms',
+      1500: '1500ms',
+      2000: '2000ms',
     },
     transitionDuration: {
       DEFAULT: '150ms',

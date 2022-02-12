@@ -506,6 +506,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   visibility: visible;
 }
 
+.static {
+  position: static;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -535,6 +539,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   display: none;
 }
 
+.h-screen {
+  height: 100vh;
+}
+
 .h-10 {
   height: 2.5rem;
 }
@@ -551,16 +559,32 @@ Ensure the default browser behavior of the `hidden` attribute.
   height: 100%;
 }
 
-.h-screen {
-  height: 100vh;
-}
-
 .w-80 {
   width: 20rem;
 }
 
 .w-12 {
   width: 3rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.w-8 {
+  width: 2rem;
+}
+
+.w-4 {
+  width: 1rem;
+}
+
+.w-2 {
+  width: 0.5rem;
+}
+
+.w-1 {
+  width: 0.25rem;
 }
 
 .border-collapse {
@@ -571,6 +595,109 @@ Ensure the default browser behavior of the `hidden` attribute.
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+@-webkit-keyframes card-flip-incorrect {
+  0% {
+    transform: rotateX(0);
+  }
+
+  50% {
+    transform: rotateX(90deg);
+  }
+
+  100% {
+    transform: rotateX(0);
+  }
+}
+
+@keyframes card-flip-incorrect {
+  0% {
+    transform: rotateX(0);
+  }
+
+  50% {
+    transform: rotateX(90deg);
+  }
+
+  100% {
+    transform: rotateX(0);
+  }
+}
+
+.animate-card-flip-incorrect {
+  -webkit-animation: card-flip-incorrect 1s ease-in-out forwards;
+          animation: card-flip-incorrect 1s ease-in-out forwards;
+}
+
+@-webkit-keyframes card-flip-position {
+  0% {
+    transform: rotateX(0);
+  }
+
+  50% {
+    transform: rotateX(90deg);
+  }
+
+  100% {
+    transform: rotateX(0);
+    border: 2px solid orange;
+  }
+}
+
+@keyframes card-flip-position {
+  0% {
+    transform: rotateX(0);
+  }
+
+  50% {
+    transform: rotateX(90deg);
+  }
+
+  100% {
+    transform: rotateX(0);
+    border: 2px solid orange;
+  }
+}
+
+.animate-card-flip-position {
+  -webkit-animation: card-flip-position 1s ease-in-out forwards;
+          animation: card-flip-position 1s ease-in-out forwards;
+}
+
+@-webkit-keyframes card-flip-correct {
+  0% {
+    transform: rotateX(0);
+  }
+
+  50% {
+    transform: rotateX(90deg);
+  }
+
+  100% {
+    transform: rotateX(0);
+    border: 2px solid green;
+  }
+}
+
+@keyframes card-flip-correct {
+  0% {
+    transform: rotateX(0);
+  }
+
+  50% {
+    transform: rotateX(90deg);
+  }
+
+  100% {
+    transform: rotateX(0);
+    border: 2px solid green;
+  }
+}
+
+.animate-card-flip-correct {
+  -webkit-animation: card-flip-correct 1s ease-in-out forwards;
+          animation: card-flip-correct 1s ease-in-out forwards;
+}
+
 .resize {
   resize: both;
 }
@@ -579,20 +706,44 @@ Ensure the default browser behavior of the `hidden` attribute.
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
-.grid-cols-\[\{nchars\}\] {
-  grid-template-columns: {nchars};
+.grid-cols-10 {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.grid-cols-9 {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.grid-cols-11 {
+  grid-template-columns: repeat(11, minmax(0, 1fr));
 }
 
 .grid-rows-6 {
   grid-template-rows: repeat(6, minmax(0, 1fr));
 }
 
+.grid-rows-4 {
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+
+.grid-rows-3 {
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
 .place-content-center {
   place-content: center;
 }
 
+.place-content-around {
+  place-content: space-around;
+}
+
 .place-content-evenly {
   place-content: space-evenly;
+}
+
+.content-center {
+  align-content: center;
 }
 
 .content-evenly {
@@ -630,6 +781,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .gap-y-1 {
   row-gap: 0.25rem;
+}
+
+.gap-y-5 {
+  row-gap: 1.25rem;
 }
 
 .border {
@@ -679,9 +834,34 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-color: rgb(74 222 128 / var(--tw-border-opacity));
 }
 
+.border-red-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(248 113 113 / var(--tw-border-opacity));
+}
+
+.border-green-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(34 197 94 / var(--tw-border-opacity));
+}
+
+.border-gray-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(107 114 128 / var(--tw-border-opacity));
+}
+
 .bg-black {
   --tw-bg-opacity: 1;
   background-color: rgb(0 0 0 / var(--tw-bg-opacity));
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .text-white {
@@ -696,4 +876,8 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .outline {
   outline-style: solid;
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
