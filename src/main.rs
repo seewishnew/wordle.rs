@@ -259,7 +259,7 @@ impl Component for Game {
     fn view(&self, _ctx: &Context<Self>) -> Html {
         log::info!("Rendering Game");
         html!{
-            <div class={classes!("flex", "justify-center", "items-center", "h-100")}>
+            <div class={classes!("flex", "justify-center", "items-center", "h-full")}>
                 <Wordle></Wordle>
             </div>
         }
