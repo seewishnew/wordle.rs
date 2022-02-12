@@ -421,8 +421,8 @@ impl Wordle {
                         self.game_over = true;
                         self.state[self.word_i]
                             .iter_mut()
-                            .zip(self.answer.clone().into_iter())
-                            .for_each(|(css, ch)| {
+                            .zip(self.answer.iter())
+                            .for_each(|(css, &ch)| {
                                 *css = CharCellState::Filled(FilledState {
                                     ch: ch,
                                     correctness: CorrectnessLevel::Correct,
