@@ -1,4 +1,4 @@
-use crate::game_model::{PlayRequest, GetStateResponse};
+use crate::game_model::{GetStateResponse, PlayRequest};
 use crate::{
     charcell::*,
     check_user_set,
@@ -7,7 +7,7 @@ use crate::{
     Route,
 };
 use reqwasm::http::Request;
-use web_sys::{RequestCredentials, RequestCache};
+use web_sys::RequestCredentials;
 #[allow(unused, dead_code)]
 use yew::{classes, html, Component, Context, Html, Properties};
 use yew_router::prelude::*;
@@ -85,16 +85,18 @@ impl Component for Wordle {
         ctx.link().send_future(async move {
             Self::Message::ApiResponse(WordleResponse::GetState(
                 match Request::get(&url)
-                .credentials(RequestCredentials::Include)
-                .send().await {
-                    Ok(resp) => {
-                        resp.json::<GetStateResponse>().await
-                    },
+                    .credentials(RequestCredentials::Include)
+                    .send()
+                    .await
+                {
+                    Ok(resp) => resp.json::<GetStateResponse>().await,
                     Err(error) => {
-                        log::error!("Something went wrong while trying to load game state! {error:?}");
+                        log::error!(
+                            "Something went wrong while trying to load game state! {error:?}"
+                        );
                         Err(error)
                     }
-                }
+                },
             ))
         });
 
@@ -134,19 +136,24 @@ impl Component for Wordle {
                 self.animate = true;
                 self.loading = false;
                 true
-            },
+            }
             Self::Message::ApiResponse(WordleResponse::GetState(Ok(resp))) => {
                 log::info!("Received game state response: {resp:?}");
                 self.game_over = resp.game_over;
-                resp.guesses.into_iter().enumerate().for_each(|(word_i, guess)| {
-                    guess.into_iter().enumerate().for_each(|(char_i, (ch, correctness))| {
-                        self.state[word_i][char_i] = CharCellState::Filled(FilledState {
-                            ch,
-                            correctness: Correctness::from(correctness),
-                        });
-                    }
-                );
-                });
+                resp.guesses
+                    .into_iter()
+                    .enumerate()
+                    .for_each(|(word_i, guess)| {
+                        guess
+                            .into_iter()
+                            .enumerate()
+                            .for_each(|(char_i, (ch, correctness))| {
+                                self.state[word_i][char_i] = CharCellState::Filled(FilledState {
+                                    ch,
+                                    correctness: Correctness::from(correctness),
+                                });
+                            });
+                    });
                 self.animate = true;
                 self.loading = false;
                 true

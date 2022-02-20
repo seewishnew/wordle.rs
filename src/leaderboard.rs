@@ -27,26 +27,27 @@ impl Component for Leaderboard {
 
     fn create(ctx: &Context<Self>) -> Self {
         let Self::Properties { game_id } = ctx.props().clone();
-            let link = ctx.link().clone();
-            Interval::new(5_000, move || {
-                let path = format!("/api/v1/manage/{}", game_id);
-                link.send_future(async move {
-                    log::info!("Querying api server");
-                    Self::Message::Api(
-                        match Request::get(&path)
-                            .credentials(RequestCredentials::Include)
-                            .send()
-                            .await
-                        {
-                            Ok(resp) => {
-                                log::info!("Received response: {resp:?}");
-                                resp.json::<ManageGameResponse>().await
-                            }
-                            Err(error) => Err(error),
-                        },
-                    )
-                })
-            }).forget();
+        let link = ctx.link().clone();
+        Interval::new(5_000, move || {
+            let path = format!("/api/v1/manage/{}", game_id);
+            link.send_future(async move {
+                log::info!("Querying api server");
+                Self::Message::Api(
+                    match Request::get(&path)
+                        .credentials(RequestCredentials::Include)
+                        .send()
+                        .await
+                    {
+                        Ok(resp) => {
+                            log::info!("Received response: {resp:?}");
+                            resp.json::<ManageGameResponse>().await
+                        }
+                        Err(error) => Err(error),
+                    },
+                )
+            })
+        })
+        .forget();
 
         Self {
             answer: None,
