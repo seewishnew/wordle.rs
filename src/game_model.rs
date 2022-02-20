@@ -1,4 +1,5 @@
-use serde::{Serialize, Deserialize};
+use crate::charcell;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateGameRequest {
@@ -18,12 +19,12 @@ pub enum Correctness {
     Incorrect,
 }
 
-impl From<Correctness> for crate::Correctness {
+impl From<Correctness> for charcell::Correctness {
     fn from(correctness: Correctness) -> Self {
         match correctness {
-            Correctness::Correct => crate::Correctness::Correct,
-            Correctness::IncorrectPosition => crate::Correctness::IncorrectPosition,
-            Correctness::Incorrect=> crate::Correctness::Incorrect,
+            Correctness::Correct => charcell::Correctness::Correct,
+            Correctness::IncorrectPosition => charcell::Correctness::IncorrectPosition,
+            Correctness::Incorrect => charcell::Correctness::Incorrect,
         }
     }
 }
@@ -40,7 +41,6 @@ pub struct PlayerResponse {
     pub guesses: Vec<Guess>,
 }
 
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ManageGameResponse {
     pub start_time: u64,
@@ -50,11 +50,11 @@ pub struct ManageGameResponse {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PlayRequest {
-    pub guess: Vec<char>
+    pub guess: Vec<char>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PlayResponse {
     pub game_over: bool,
-    pub guess: Vec<(char, Correctness)>
+    pub guess: Vec<(char, Correctness)>,
 }
