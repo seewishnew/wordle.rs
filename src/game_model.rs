@@ -58,3 +58,9 @@ pub struct PlayResponse {
     pub game_over: bool,
     pub guess: Vec<(char, Correctness)>,
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetStateResponse {
+    pub game_over: bool,
+    pub guesses: Vec<Vec<(char, Correctness)>>,
+}

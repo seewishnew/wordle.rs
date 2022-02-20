@@ -1,4 +1,4 @@
-use crate::game_model::PlayRequest;
+use crate::game_model::{PlayRequest, GetStateResponse};
 use crate::{
     charcell::*,
     check_user_set,
@@ -7,7 +7,7 @@ use crate::{
     Route,
 };
 use reqwasm::http::Request;
-use web_sys::RequestCredentials;
+use web_sys::{RequestCredentials, RequestCache};
 #[allow(unused, dead_code)]
 use yew::{classes, html, Component, Context, Html, Properties};
 use yew_router::prelude::*;
@@ -46,6 +46,7 @@ impl Component for Word {
 }
 
 pub enum WordleResponse {
+    GetState(Result<GetStateResponse, reqwasm::Error>),
     PlayGame(Result<PlayResponse, reqwasm::Error>),
 }
 pub enum WordleMsg {
@@ -60,6 +61,7 @@ pub struct WordleProps {
 
 pub struct Wordle {
     animate: bool,
+    loading: bool,
     game_over: bool,
     game_id: String,
     cell_i: usize,
@@ -79,10 +81,27 @@ impl Component for Wordle {
         }
 
         let Self::Properties { game_id } = ctx.props();
+        let url = format!("/api/v1/game/{game_id}/state");
+        ctx.link().send_future(async move {
+            Self::Message::ApiResponse(WordleResponse::GetState(
+                match Request::get(&url)
+                .credentials(RequestCredentials::Include)
+                .send().await {
+                    Ok(resp) => {
+                        resp.json::<GetStateResponse>().await
+                    },
+                    Err(error) => {
+                        log::error!("Something went wrong while trying to load game state! {error:?}");
+                        Err(error)
+                    }
+                }
+            ))
+        });
 
         Self {
             animate: false,
             game_over: false,
+            loading: true,
             game_id: game_id.into(),
             cell_i: 0,
             word_i: 0,
@@ -113,6 +132,23 @@ impl Component for Wordle {
                     self.game_over = true;
                 }
                 self.animate = true;
+                self.loading = false;
+                true
+            },
+            Self::Message::ApiResponse(WordleResponse::GetState(Ok(resp))) => {
+                log::info!("Received game state response: {resp:?}");
+                self.game_over = resp.game_over;
+                resp.guesses.into_iter().enumerate().for_each(|(word_i, guess)| {
+                    guess.into_iter().enumerate().for_each(|(char_i, (ch, correctness))| {
+                        self.state[word_i][char_i] = CharCellState::Filled(FilledState {
+                            ch,
+                            correctness: Correctness::from(correctness),
+                        });
+                    }
+                );
+                });
+                self.animate = true;
+                self.loading = false;
                 true
             }
             _ => {
@@ -151,7 +187,7 @@ impl Component for Wordle {
 
 impl Wordle {
     fn keydown_handler(&mut self, ctx: &Context<Self>, e: KeyboardMsg) -> bool {
-        if self.game_over {
+        if self.game_over || self.loading {
             return false;
         }
         self.animate = false;
@@ -174,6 +210,7 @@ impl Wordle {
                         })
                         .collect();
                     let url = format!("/api/v1/game/{}/play", self.game_id);
+                    self.loading = true;
                     ctx.link().send_future(async move {
                         WordleMsg::ApiResponse(WordleResponse::PlayGame(
                             match Request::post(&url)
