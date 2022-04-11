@@ -82,7 +82,7 @@ impl Component for Snackbar {
         }
 
         html! {
-            <div class={classes!(classes)}>{message}</div>
+            <div class={classes}>{message}</div>
         }
     }
 }

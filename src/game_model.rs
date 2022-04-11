@@ -12,21 +12,11 @@ pub struct Guess {
     pub submit_time: u64,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Correctness {
     Correct,
     IncorrectPosition,
     Incorrect,
-}
-
-impl From<Correctness> for charcell::Correctness {
-    fn from(correctness: Correctness) -> Self {
-        match correctness {
-            Correctness::Correct => charcell::Correctness::Correct,
-            Correctness::IncorrectPosition => charcell::Correctness::IncorrectPosition,
-            Correctness::Incorrect => charcell::Correctness::Incorrect,
-        }
-    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

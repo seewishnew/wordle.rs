@@ -93,10 +93,10 @@ impl Component for Leaderboard {
         html! {
             <div class={classes!("w-full", "h-full", "grid", "place-content-center")}>
                 <div class={classes!("grid", "w-80", "md:w-100", "lg:w-150",  "h-full", "gap-y-5", "justify-items-center", "content-center")}>
-                    <div class={classes!(classes)}>
+                    <div class={classes}>
                         <h1>{"Leaderboard"}</h1>
                         <h2>{format!("Game id: {}", game_id)}</h2>
-                        <h3>{if let Some(answer) = &self.answer { answer } else { "Loading..." }}</h3>
+                        <h3>{if let Some(answer) = &self.answer { format!("Answer: {answer}") } else { "Loading...".to_owned() }}</h3>
                         {
                             if let Some(players) = &self.players {
                                 if players.len() == 0 {
@@ -104,16 +104,22 @@ impl Component for Leaderboard {
                                 } else {
 
                                 players.iter().map(|player| {
-                                    let (ncorr, nincorr_pos, nincorr) = player.guesses.iter().map(|guess| guess.guess.iter()).flatten().fold((0,0,0), |(st_correct, st_incorrect_pos, st_incorrect), (_, correctness)|
+                                    let (ncorr, nincorr_pos, nincorr): (i32, i32, i32) = player.guesses.iter().map(|guess| guess.guess.iter()).flatten().fold((0,0,0), |(st_correct, st_incorrect_pos, st_incorrect), (_, correctness)|
                                         match correctness {
                                             game_model::Correctness::Correct => (st_correct+1, st_incorrect_pos, st_incorrect),
                                             game_model::Correctness::IncorrectPosition => (st_correct, st_incorrect_pos+1, st_incorrect),
                                             game_model::Correctness::Incorrect=> (st_correct, st_incorrect_pos, st_incorrect+1),
                                         });
+
+                                    let mut classes = vec![];
+                                    if player.guesses.last().map(|guess| guess.guess.iter().all(|&(_, correctness)| correctness == game_model::Correctness::Correct)).unwrap_or(false) {
+                                        classes.push("text-green-400");
+                                    }
+
                                     html!{
                                         <div class={classes!("flex", "w-full", "text-white", "justify-between")}>
                                             <div>{player.name.clone()}</div>
-                                            <div>{format!("{}/6", player.guesses.len())}</div>
+                                            <div class={classes}>{format!("{}/6", player.guesses.len())}</div>
                                             <div class={classes!("flex", "text-white")}>
                                                 <div class={classes!("bg-green-400")}>{ncorr}</div>
                                                 <div class={classes!("bg-orange-400")}>{nincorr_pos}</div>

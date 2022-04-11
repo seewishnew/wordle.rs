@@ -1,4 +1,4 @@
-use crate::game_model::{GetStateResponse, PlayRequest};
+use crate::game_model::{self, GetStateResponse, PlayRequest};
 use crate::{
     charcell::*,
     check_user_set,
@@ -122,15 +122,17 @@ impl Component for Wordle {
                 log::info!("Play submitted to leaderboard");
                 log::info!("Received response: {resp:?}");
                 self.game_over = self.game_over || resp.game_over;
-                resp.guess
-                    .into_iter()
-                    .enumerate()
-                    .for_each(|(i, (ch, correctness))| {
+                let has_won = resp.guess.into_iter().enumerate().fold(
+                    true,
+                    |all_correct, (i, (ch, correctness))| {
                         self.state[self.word_i][i] = CharCellState::Filled(FilledState {
                             ch,
                             correctness: Correctness::from(correctness),
                         });
-                    });
+                        self.update_correctness_map(ch, correctness);
+                        all_correct && (correctness == game_model::Correctness::Correct)
+                    },
+                );
                 self.cell_i = 0;
                 self.word_i += 1;
                 if self.word_i == 6 {
@@ -138,14 +140,26 @@ impl Component for Wordle {
                 }
                 self.animate = true;
                 self.loading = false;
-                if self.game_over {
+                if has_won {
                     self.toast_msg = Some("You won!".to_owned());
+                } else if self.game_over {
+                    self.toast_msg = Some("Game over!".to_owned());
                 }
                 true
             }
             Self::Message::ApiResponse(WordleResponse::GetState(Ok(resp))) => {
                 log::info!("Received game state response: {resp:?}");
                 self.game_over = resp.game_over;
+                self.word_i = resp.guesses.len();
+                let has_won = resp
+                    .guesses
+                    .last()
+                    .map(|guess| {
+                        guess.iter().all(|&(_, correctness)| {
+                            correctness == game_model::Correctness::Correct
+                        })
+                    })
+                    .unwrap_or(false);
                 resp.guesses
                     .into_iter()
                     .enumerate()
@@ -158,10 +172,16 @@ impl Component for Wordle {
                                     ch,
                                     correctness: Correctness::from(correctness),
                                 });
+                                self.update_correctness_map(ch, correctness);
                             });
                     });
                 self.animate = true;
                 self.loading = false;
+                if has_won {
+                    self.toast_msg = Some("You won!".to_owned());
+                } else if self.game_over {
+                    self.toast_msg = Some("Game over!".to_owned());
+                }
                 true
             }
             _ => {
@@ -201,6 +221,24 @@ impl Component for Wordle {
 }
 
 impl Wordle {
+    fn update_correctness_map(&mut self, ch: char, correctness: game_model::Correctness) {
+        let ord = ch as usize - 'A' as usize;
+        // We do not demote correctness map for a character if it has already been set to correct anywhere
+        if self.correctness_map[ord] != Correctness::Correct {
+            if self.correctness_map[ord] == Correctness::Incorrect
+                || self.correctness_map[ord] == Correctness::Guess
+            {
+                self.correctness_map[ord] = Correctness::from(correctness);
+            } else {
+                // The character is already incorrect position; we should not demote it to incorrect
+                // Demotion can happen when the answer does not have repeating characters but guess
+                // has repetition
+                if correctness != game_model::Correctness::Incorrect {
+                    self.correctness_map[ord] = Correctness::from(correctness);
+                }
+            }
+        }
+    }
     fn keydown_handler(&mut self, ctx: &Context<Self>, e: KeyboardMsg) -> bool {
         if self.game_over || self.loading {
             return false;

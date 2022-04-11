@@ -514,6 +514,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   position: static;
 }
 
+.m-0 {
+  margin: 0px;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -614,6 +618,7 @@ Ensure the default browser behavior of the `hidden` attribute.
 
   100% {
     transform: rotateX(0);
+    background-color: rgb(156, 163, 175);
   }
 }
 
@@ -628,6 +633,7 @@ Ensure the default browser behavior of the `hidden` attribute.
 
   100% {
     transform: rotateX(0);
+    background-color: rgb(156, 163, 175);
   }
 }
 
@@ -647,7 +653,7 @@ Ensure the default browser behavior of the `hidden` attribute.
 
   100% {
     transform: rotateX(0);
-    border: 2px solid orange;
+    background-color: rgb(251, 146, 60);
   }
 }
 
@@ -662,7 +668,7 @@ Ensure the default browser behavior of the `hidden` attribute.
 
   100% {
     transform: rotateX(0);
-    border: 2px solid orange;
+    background-color: rgb(251, 146, 60);
   }
 }
 
@@ -682,7 +688,7 @@ Ensure the default browser behavior of the `hidden` attribute.
 
   100% {
     transform: rotateX(0);
-    border: 2px solid green;
+    background-color: rgb(74, 222, 128);
   }
 }
 
@@ -697,7 +703,7 @@ Ensure the default browser behavior of the `hidden` attribute.
 
   100% {
     transform: rotateX(0);
-    border: 2px solid green;
+    background-color: rgb(74, 222, 128);
   }
 }
 
@@ -881,6 +887,21 @@ Ensure the default browser behavior of the `hidden` attribute.
   row-gap: 0.75rem;
 }
 
+.gap-x-2 {
+  -moz-column-gap: 0.5rem;
+       column-gap: 0.5rem;
+}
+
+.gap-x-3 {
+  -moz-column-gap: 0.75rem;
+       column-gap: 0.75rem;
+}
+
+.gap-x-5 {
+  -moz-column-gap: 1.25rem;
+       column-gap: 1.25rem;
+}
+
 .overflow-x-auto {
   overflow-x: auto;
 }
@@ -951,6 +972,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-color: rgb(107 114 128 / var(--tw-border-opacity));
 }
 
+.border-gray-700 {
+  --tw-border-opacity: 1;
+  border-color: rgb(55 65 81 / var(--tw-border-opacity));
+}
+
 .bg-black {
   --tw-bg-opacity: 1;
   background-color: rgb(0 0 0 / var(--tw-bg-opacity));
@@ -974,6 +1000,21 @@ Ensure the default browser behavior of the `hidden` attribute.
 .bg-gray-400 {
   --tw-bg-opacity: 1;
   background-color: rgb(156 163 175 / var(--tw-bg-opacity));
+}
+
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.bg-green-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(34 197 94 / var(--tw-bg-opacity));
+}
+
+.bg-gray-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(107 114 128 / var(--tw-bg-opacity));
 }
 
 .p-1 {
@@ -1002,6 +1043,11 @@ Ensure the default browser behavior of the `hidden` attribute.
 .text-black {
   --tw-text-opacity: 1;
   color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+
+.text-green-400 {
+  --tw-text-opacity: 1;
+  color: rgb(74 222 128 / var(--tw-text-opacity));
 }
 
 .underline {

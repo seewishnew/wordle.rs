@@ -122,7 +122,7 @@ impl Component for Keyboard {
         }
         html! {
             <div class={classes!(wrapper_classes)}>
-                <div class={classes!("w-full", "grid", "grid-cols-10", "gap-x-1", "justify-items-center", "content-center")}>
+                <div class={classes!("w-full", "grid", "grid-cols-10", "gap-x-5", "justify-items-center", "content-center")}>
                     {
                         [KeyboardMsg::Q, KeyboardMsg::W, KeyboardMsg::E, KeyboardMsg::R, KeyboardMsg::T, KeyboardMsg::Y, KeyboardMsg::U, KeyboardMsg::I, KeyboardMsg::O, KeyboardMsg::P]
                         .into_iter().map(|k| {
@@ -130,7 +130,7 @@ impl Component for Keyboard {
                         }).collect::<Html>()
                     }
                 </div>
-                <div class={classes!("w-full", "grid", "grid-cols-11", "gap-x-1", "justify-items-center", "content-center")}>
+                <div class={classes!("w-full", "grid", "grid-cols-11", "gap-x-5", "justify-items-center", "content-center")}>
                     <div class={classes!("h-10", "w-4", "text-white", "grid", "place-content-center")}></div>
                     {
                          [KeyboardMsg::A, KeyboardMsg::S, KeyboardMsg::D, KeyboardMsg::F, KeyboardMsg::G, KeyboardMsg::H, KeyboardMsg::J, KeyboardMsg::K, KeyboardMsg::L]
@@ -140,7 +140,7 @@ impl Component for Keyboard {
                     }
                     <div class={classes!("h-10", "w-4", "text-white", "grid", "place-content-center")}></div>
                 </div>
-                <div class={classes!("w-full", "grid", "grid-cols-11", "gap-x-1", "justify-items-center", "content-center")}>
+                <div class={classes!("w-full", "grid", "grid-cols-11", "gap-x-5", "justify-items-center", "content-center")}>
                     <div class={classes!("h-10", "w-4", "text-white", "grid", "place-content-center")}></div>
                 {
                     [KeyboardMsg::Enter, KeyboardMsg::Z, KeyboardMsg::X, KeyboardMsg::C, KeyboardMsg::V, KeyboardMsg::B, KeyboardMsg::N, KeyboardMsg::M, KeyboardMsg::Backspace]
@@ -167,24 +167,24 @@ fn render_key(ctx: &Context<Keyboard>, key: KeyboardMsg, state: Correctness) -> 
     ];
     match key {
         KeyboardMsg::Backspace => html! {
-            <div onclick={ctx.link().callback(|_| KeyboardMsg::Backspace)} class={classes!(classes)}>{KeyboardMsg::Backspace}</div>
+            <div onclick={ctx.link().callback(|_| KeyboardMsg::Backspace)} class={classes}>{KeyboardMsg::Backspace}</div>
         },
         KeyboardMsg::Enter => {
             classes.push("text-xs");
             html! {
-                <div onclick={ctx.link().callback(|_| KeyboardMsg::Enter)} class={classes!(classes)}>{KeyboardMsg::Enter}</div>
+                <div onclick={ctx.link().callback(|_| KeyboardMsg::Enter)} class={classes}>{KeyboardMsg::Enter}</div>
             }
         }
         k => {
             match state {
-                Correctness::Guess => classes.push("border-white"),
-                Correctness::Correct => classes.push("border-green-500"),
-                Correctness::IncorrectPosition => classes.push("border-orange-400"),
-                Correctness::Incorrect => classes.push("border-gray-500"),
+                Correctness::Guess => classes.push("bg-black"),
+                Correctness::Correct => classes.push("bg-green-500"),
+                Correctness::IncorrectPosition => classes.push("bg-orange-400"),
+                Correctness::Incorrect => classes.push("bg-gray-500"),
             }
 
             html! {
-                <div onclick={ctx.link().callback(move |_| k)} class={classes!(classes)}>{k}</div>
+                <div onclick={ctx.link().callback(move |_| k)} class={classes}>{k}</div>
             }
         }
     }

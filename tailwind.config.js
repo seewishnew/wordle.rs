@@ -580,7 +580,7 @@ module.exports = {
         },
         '100%': {
           transform: 'rotateX(0)',
-          border: '2px solid green',
+          'background-color': 'rgb(74, 222, 128)'
         },
       },
       "card-flip-position": {
@@ -592,7 +592,7 @@ module.exports = {
         },
         '100%': {
           transform: 'rotateX(0)',
-          border: '2px solid orange',
+          'background-color': 'rgb(251, 146, 60)'
         },
       },
       "card-flip-incorrect": {
@@ -603,7 +603,8 @@ module.exports = {
           transform: 'rotateX(90deg)'
         },
         '100%': {
-          transform: 'rotateX(0)'
+          transform: 'rotateX(0)',
+          'background-color': 'rgb(156, 163, 175)'
         },
       },
       spin: {

@@ -1,12 +1,24 @@
 #[allow(unused, dead_code)]
 use yew::{classes, html, Component, Context, Html, Properties};
 
+use crate::game_model;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Correctness {
     Incorrect,
     IncorrectPosition,
     Guess,
     Correct,
+}
+
+impl From<game_model::Correctness> for Correctness {
+    fn from(correctness: game_model::Correctness) -> Self {
+        match correctness {
+            game_model::Correctness::Correct => Self::Correct,
+            game_model::Correctness::IncorrectPosition => Self::IncorrectPosition,
+            game_model::Correctness::Incorrect => Self::Incorrect,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -54,15 +66,17 @@ impl Component for CharCell {
             "border",
             "border-solid",
             "grid",
+            "rounded",
             "place-content-center",
         ];
-        // let delay = format!("delay-{}", animate.1);
-        // classes.push(&delay);
 
         match state {
-            CharCellState::Empty => html! {
-                <div class={classes!("h-12", "w-12", "border", "border-white", "border-solid")}></div>
-            },
+            CharCellState::Empty => {
+                classes.push("border-white");
+                html! {
+                    <div class={classes}></div>
+                }
+            }
             CharCellState::Filled(FilledState { ch, correctness }) => match correctness {
                 Correctness::Guess => {
                     classes.push("border-white");
@@ -74,30 +88,30 @@ impl Component for CharCell {
                     if animate.0 {
                         classes.push("animate-card-flip-incorrect");
                     } else {
-                        classes.push("border-gray-400");
+                        classes.push("bg-gray-400");
                     }
                     html! {
-                        <div class={classes!(classes)}>{ch.to_ascii_uppercase()}</div>
+                        <div class={classes}>{ch.to_ascii_uppercase()}</div>
                     }
                 }
                 Correctness::IncorrectPosition => {
                     if animate.0 {
                         classes.push("animate-card-flip-position");
                     } else {
-                        classes.push("border-orange-400");
+                        classes.push("bg-orange-400");
                     }
                     html! {
-                        <div class={classes!(classes)}>{ch.to_ascii_uppercase()}</div>
+                        <div class={classes}>{ch.to_ascii_uppercase()}</div>
                     }
                 }
                 Correctness::Correct => {
                     if animate.0 {
                         classes.push("animate-card-flip-correct");
                     } else {
-                        classes.push("border-green-400");
+                        classes.push("bg-green-400");
                     }
                     html! {
-                        <div class={classes!(classes)}>{ch.to_ascii_uppercase()}</div>
+                        <div class={classes}>{ch.to_ascii_uppercase()}</div>
                     }
                 }
             },
