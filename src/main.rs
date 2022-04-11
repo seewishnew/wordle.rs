@@ -13,6 +13,7 @@ mod register;
 mod routes;
 mod user_model;
 mod wordle;
+mod snackbar;
 
 use routes::*;
 

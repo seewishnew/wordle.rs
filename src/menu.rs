@@ -6,7 +6,7 @@ use yew::{classes, html, Component, Context, Html, Properties};
 use yew::{events::Event, Callback};
 use yew_router::{history::History, prelude::RouterScopeExt};
 
-use crate::{check_user_set, Route};
+use crate::{check_user_set, snackbar::Snackbar, Route};
 pub enum MenuMsg {
     Input(String),
     Submit,
@@ -15,6 +15,7 @@ pub enum MenuMsg {
 
 pub struct Menu {
     game_id: String,
+    toast_msg: Option<String>,
 }
 
 impl Component for Menu {
@@ -29,6 +30,7 @@ impl Component for Menu {
 
         Self {
             game_id: String::new(),
+            toast_msg: None,
         }
     }
 
@@ -54,6 +56,8 @@ impl Component for Menu {
                             },
                         )
                     })
+                } else {
+                    self.toast_msg = Some("Game ID must be 24 characters long".to_owned());
                 }
                 true
             }
@@ -65,6 +69,7 @@ impl Component for Menu {
             }
             Self::Message::SubmitResponse(Err(error)) => {
                 log::error!("Received error: {error:?}");
+                self.toast_msg = Some("Error joining the game".to_owned());
                 false
             }
         }
@@ -82,11 +87,12 @@ impl Component for Menu {
         html! {
             <div class={classes!("w-full", "h-full", "grid", "place-content-center")}>
                 <div class={classes!("grid", "w-80", "md:w-100", "lg:w-150",  "h-full", "gap-y-5", "text-white", "justify-items-center", "content-center")}>
-                    <button onclick={on_create_click} class={classes!("border", "border-solid", "border-white")}>{"Create New Game"}</button>
                     <div class={classes!("grid", "gap-y-3")}>
-                        <input onchange={on_cautious_change} class={classes!("text-black")} type="text" placeholder="Game ID"/>
-                        <button onclick={on_play_click} class={classes!("border", "border-solid", "border-white")}>{"Play"}</button>
+                        <button onclick={on_create_click} class={classes!("border", "w-full", "border-solid", "border-white", "mb-3", "rounded")}>{"Create New Game"}</button>
+                        <input onchange={on_cautious_change} class={classes!("text-black", "rounded", "p-1")} type="text" placeholder="Game ID"/>
+                        <button onclick={on_play_click} class={classes!("border", "border-solid", "border-white", "rounded")}>{"Play"}</button>
                     </div>
+                    <Snackbar message={self.toast_msg.as_ref().cloned().unwrap_or(String::new())} display={self.toast_msg.is_some()}></Snackbar>
                 </div>
             </div>
         }

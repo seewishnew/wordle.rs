@@ -4,6 +4,7 @@ use crate::{
     check_user_set,
     game_model::PlayResponse,
     keyboard::{Keyboard, KeyboardMsg},
+    snackbar::Snackbar,
     Route,
 };
 use reqwasm::http::Request;
@@ -68,6 +69,7 @@ pub struct Wordle {
     word_i: usize,
     state: Vec<Vec<CharCellState>>,
     correctness_map: [Correctness; 28],
+    toast_msg: Option<String>,
 }
 
 impl Component for Wordle {
@@ -109,6 +111,7 @@ impl Component for Wordle {
             word_i: 0,
             state: vec![vec![CharCellState::Empty; 5]; 6],
             correctness_map: [Correctness::Guess; 28],
+            toast_msg: None,
         }
     }
 
@@ -135,6 +138,9 @@ impl Component for Wordle {
                 }
                 self.animate = true;
                 self.loading = false;
+                if self.game_over {
+                    self.toast_msg = Some("You won!".to_owned());
+                }
                 true
             }
             Self::Message::ApiResponse(WordleResponse::GetState(Ok(resp))) => {
@@ -160,7 +166,9 @@ impl Component for Wordle {
             }
             _ => {
                 log::error!("Something went wrong!");
-                false
+                self.toast_msg =
+                    Some("An error occurred; please try refreshing this page".to_owned());
+                true
             }
         }
     }
@@ -177,7 +185,6 @@ impl Component for Wordle {
                     <div class={classes!("h-80", "w-full", "grid", "grid-rows-6", "gap-y-1", "text-white")}>
                         {
                             self.state.iter().enumerate().map(|(i, text)| {
-                                // log::info!("Rendering word #{i}, word_i: {}, animation status: {}", self.word_i, i+1 == self.word_i && self.animate);
                                 html!{
                                     <Word text={text.clone()} animate={i+1 == self.word_i && self.animate}></Word>
                                 }
@@ -185,6 +192,7 @@ impl Component for Wordle {
                         }
                     </div>
                     <Keyboard callback={onkeyclick} correctness_map={self.correctness_map}></Keyboard>
+                    <Snackbar message={self.toast_msg.as_ref().cloned().unwrap_or(String::new())} display={self.toast_msg.is_some()}></Snackbar>
                 </div>
             </div>
 

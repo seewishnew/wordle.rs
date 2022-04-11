@@ -7,6 +7,7 @@ use yew_router::{history::History, prelude::RouterScopeExt};
 use crate::{
     check_user_set,
     keyboard::{Keyboard, KeyboardMsg},
+    snackbar::Snackbar,
     user_model::CreateUserIdRequest,
     Route,
 };
@@ -18,13 +19,11 @@ pub enum RegisterMsg {
 }
 
 #[derive(PartialEq, Properties)]
-pub struct RegisterProps {
-    #[prop_or(true)]
-    display: bool,
-}
+pub struct RegisterProps;
 
 pub struct Register {
     user_name: Vec<char>,
+    toast_msg: Option<String>,
 }
 
 impl Component for Register {
@@ -36,28 +35,33 @@ impl Component for Register {
         if check_user_set().is_some() {
             ctx.link().history().unwrap().push(Route::Menu);
         }
+        log::info!("Setting toast msg");
         Self {
             user_name: PROMPT.chars().collect(),
+            toast_msg: Some("Please register to begin".to_owned()),
         }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            RegisterMsg::KeyboardInput(msg) => self.keydown_handler(ctx, msg),
+            RegisterMsg::KeyboardInput(msg) => {
+                self.toast_msg = None;
+                self.keydown_handler(ctx, msg)
+            }
             RegisterMsg::RegisterUserResponse(Ok(_)) => {
                 ctx.link().history().unwrap().push(Route::Menu);
                 false
             }
             RegisterMsg::RegisterUserResponse(Err(error)) => {
                 log::error!("Error registering user: {error:?}");
-                false
+                self.toast_msg = Some("Error registering user".to_owned());
+                true
             }
         }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let Self::Properties { display } = ctx.props();
-        let mut register_classes = vec![
+        let register_classes = vec![
             "h-80",
             "w-full",
             "grid",
@@ -65,10 +69,6 @@ impl Component for Register {
             "gap-y-1",
             "text-white",
         ];
-
-        if !display {
-            register_classes.push("hidden");
-        }
 
         let onkeyclick = ctx.link().callback(|e: KeyboardMsg| {
             log::info!("Received KeyboardMsg: {e}");
@@ -83,6 +83,7 @@ impl Component for Register {
                         <div class={classes!("w-full", "flex", "justify-items-center", "overflow-x-auto")}>{self.user_name.iter().collect::<String>()}</div>
                     </div>
                     <Keyboard callback={onkeyclick}></Keyboard>
+                    <Snackbar message={self.toast_msg.as_ref().cloned().unwrap_or(String::new())} display={self.toast_msg.is_some()}></Snackbar>
                 </div>
             </div>
         }

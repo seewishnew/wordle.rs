@@ -4,7 +4,10 @@ use web_sys::RequestCredentials;
 #[allow(unused, dead_code)]
 use yew::{classes, html, Component, Context, Html, Properties};
 
-use crate::game_model::{self, ManageGameResponse, PlayerResponse};
+use crate::{
+    game_model::{self, ManageGameResponse, PlayerResponse},
+    snackbar::Snackbar,
+};
 
 #[derive(Clone, PartialEq, Properties)]
 pub struct LeaderboardProps {
@@ -18,6 +21,7 @@ pub enum LeaderboardMsg {
 pub struct Leaderboard {
     answer: Option<String>,
     players: Option<Vec<PlayerResponse>>,
+    toast_msg: Option<String>,
 }
 
 impl Component for Leaderboard {
@@ -52,6 +56,7 @@ impl Component for Leaderboard {
         Self {
             answer: None,
             players: None,
+            toast_msg: None,
         }
     }
 
@@ -61,13 +66,13 @@ impl Component for Leaderboard {
                 log::info!("Decoded response: {resp:?}");
                 self.answer = Some(resp.answer);
                 self.players = Some(resp.players);
-                true
             }
             Self::Message::Api(Err(error)) => {
                 log::info!("Error: {error:?}");
-                false
+                self.toast_msg = Some("An error occurred".to_owned());
             }
         }
+        true
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
@@ -123,6 +128,7 @@ impl Component for Leaderboard {
                             }
                         }
                     </div>
+                    <Snackbar message={self.toast_msg.as_ref().cloned().unwrap_or(String::new())} display={self.toast_msg.is_some()}></Snackbar>
                 </div>
             </div>
         }

@@ -105,6 +105,8 @@ module.exports = {
       96: '24rem',
     },
     animation: {
+      'fade-in': 'fade-in 0.5s forwards',
+      'fade-out': 'fade-out 1s ease-in forwards',
       'card-flip-correct': 'card-flip-correct 1s ease-in-out forwards',
       'card-flip-position': 'card-flip-position 1s ease-in-out forwards',
       'card-flip-incorrect': 'card-flip-incorrect 1s ease-in-out forwards',
@@ -553,6 +555,22 @@ module.exports = {
       full: '100%',
     }),
     keyframes: {
+      "fade-in": {
+        '0%': {
+          opacity: 0
+        },
+        '100%': {
+          opacity: 1
+        }
+      },
+      "fade-out": {
+        '0%': {
+          opacity: 1
+        },
+        '100%': {
+          opacity: 0
+        }
+      },
       "card-flip-correct": {
         '0%': {
           transform: 'rotateX(0)'

@@ -9,6 +9,7 @@ use crate::{
     check_user_set,
     game_model::{CreateGameRequest, CreateGameResponse},
     keyboard::{Keyboard, KeyboardMsg},
+    snackbar::Snackbar,
     wordle::Word,
     Route,
 };
@@ -18,6 +19,7 @@ pub struct AnswerInput {
     cell_i: usize,
     submitted: bool,
     animate: bool,
+    toast_msg: Option<String>,
 }
 
 pub enum AnswerInputResponse {
@@ -43,6 +45,7 @@ impl Component for AnswerInput {
             cell_i: 0,
             submitted: false,
             animate: false,
+            toast_msg: None,
         }
     }
 
@@ -58,7 +61,8 @@ impl Component for AnswerInput {
             }
             AnswerInputMsg::ApiResponse(AnswerInputResponse::CreateGame(Err(error))) => {
                 log::error!("Could not create a new game: {error:?}");
-                false
+                self.toast_msg = Some("An error occurred".to_string());
+                true
             }
         }
     }
@@ -84,6 +88,7 @@ impl Component for AnswerInput {
                         <Word text={self.answer.clone()} animate={self.animate}></Word>
                     </div>
                     <Keyboard callback={onkeyclick}></Keyboard>
+                    <Snackbar message={self.toast_msg.as_ref().cloned().unwrap_or(String::new())} display={self.toast_msg.is_some()}></Snackbar>
                 </div>
             </div>
         }
