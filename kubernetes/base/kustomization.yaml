@@ -1,0 +1,7 @@
+resources:
+  - ./mongodb.yaml
+  - ./wordle-backend-mongo.yaml
+  - ./wordle-backend-secret.yaml
+  - ./wordle-ingress.yaml
+  - ./wordle-backend.yaml
+  - ./wordle-frontend.yaml

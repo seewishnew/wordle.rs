@@ -1,4 +1,3 @@
-use crate::charcell;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]

@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordle-backend
+spec:
+  selector:
+    app: wordle
+    scope: backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordle-backend
+  labels:
+    app: wordle
+    scope: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: wordle
+      scope: backend
+  template:
+    metadata:
+      labels:
+        app: wordle
+        scope: backend
+    spec:
+      containers:
+      - name: wordle-backend
+        image: wordle-backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: wordle-backend-secret
+              key: SECRET_KEY
+              optional: false 
+        - name: MONGO_URI
+          valueFrom:
+            configMapKeyRef:
+              name: wordle-backend-mongo
+              key: MONGO_URI
+              optional: false
