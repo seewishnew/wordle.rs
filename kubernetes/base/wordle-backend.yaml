@@ -45,6 +45,12 @@ spec:
         - name: MONGO_URI
           valueFrom:
             configMapKeyRef:
-              name: wordle-backend-mongo
+              name: wordle-backend-cm
               key: MONGO_URI
+              optional: false
+        - name: ROCKET_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: wordle-backend-cm
+              key: ROCKET_ADDRESS
               optional: false

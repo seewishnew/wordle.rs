@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordle-backend-cm
+data:
+  MONGO_URI: mongodb:27017
+  ROCKET_ADDRESS: 0.0.0.0

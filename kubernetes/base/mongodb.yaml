@@ -32,6 +32,6 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: mongo:5.0.0
+        image: arm64v8/mongo:4.0-xenial
         ports:
         - containerPort: 27017

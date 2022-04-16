@@ -3,7 +3,7 @@
  images:
  - name: wordle-backend
    newName: 192.168.16.108:5000/wordle-backend
-   newTag: 1.0.0
+   newTag: 1.0.0-arm64v8
  - name: wordle-frontend
    newName: 192.168.16.108:5000/wordle-frontend
-   newTag: 1.0.0
+   newTag: 1.0.0-arm64v8
