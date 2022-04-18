@@ -34,3 +34,13 @@ spec:
         image: wordle-frontend:latest
         ports:
         - containerPort: 80
+        volumeMounts:
+        - name: nginx-conf
+          mountPath: /etc/nginx/conf.d/
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: wordle-frontend-nginx-conf 
+          items:
+          - key: default-nginx.conf
+            path: default.conf
