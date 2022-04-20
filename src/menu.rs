@@ -10,11 +10,13 @@ use crate::{check_user_set, snackbar::Snackbar, Route};
 pub enum MenuMsg {
     Input(String),
     Submit,
+    VerifyUserResponse(bool),
     SubmitResponse(Result<(), reqwasm::Error>),
 }
 
 pub struct Menu {
     game_id: String,
+    verification_pending: bool,
     toast_msg: Option<String>,
 }
 
@@ -24,18 +26,27 @@ impl Component for Menu {
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-        if check_user_set().is_none() {
-            ctx.link().history().unwrap().push(Route::Register);
-        }
-
+        ctx.link()
+            .send_future(async { MenuMsg::VerifyUserResponse(check_user_set().await) });
         Self {
             game_id: String::new(),
-            toast_msg: None,
+            verification_pending: true,
+            toast_msg: Some("Loading".to_owned()),
         }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
+            Self::Message::VerifyUserResponse(false) => {
+                ctx.link().history().unwrap().push(Route::Register);
+                false
+            }
+            Self::Message::VerifyUserResponse(true) => {
+                self.verification_pending = false;
+                self.toast_msg = None;
+                true
+            }
+
             Self::Message::Input(s) => {
                 self.game_id = s;
                 false

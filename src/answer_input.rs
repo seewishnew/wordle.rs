@@ -19,6 +19,7 @@ pub struct AnswerInput {
     cell_i: usize,
     submitted: bool,
     animate: bool,
+    verification_pending: bool,
     toast_msg: Option<String>,
 }
 
@@ -27,6 +28,7 @@ pub enum AnswerInputResponse {
 }
 pub enum AnswerInputMsg {
     KeyboardInput(KeyboardMsg),
+    VerifyUserResponse(bool),
     ApiResponse(AnswerInputResponse),
 }
 
@@ -36,21 +38,29 @@ impl Component for AnswerInput {
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-        if check_user_set().is_none() {
-            ctx.link().history().unwrap().push(Route::Register);
-        }
-
+        ctx.link()
+            .send_future(async { AnswerInputMsg::VerifyUserResponse(check_user_set().await) });
         Self {
             answer: vec![CharCellState::Empty; 5],
             cell_i: 0,
             submitted: false,
             animate: false,
-            toast_msg: None,
+            verification_pending: true,
+            toast_msg: Some("Loading".to_owned()),
         }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
+            AnswerInputMsg::VerifyUserResponse(false) => {
+                ctx.link().history().unwrap().push(Route::Register);
+                false
+            }
+            AnswerInputMsg::VerifyUserResponse(true) => {
+                self.verification_pending = false;
+                self.toast_msg = None;
+                true
+            }
             AnswerInputMsg::KeyboardInput(e) => self.keydown_handler(ctx, e),
             AnswerInputMsg::ApiResponse(AnswerInputResponse::CreateGame(Ok(resp))) => {
                 log::info!("Created game with ID: {:?}", resp);
@@ -72,7 +82,7 @@ impl Component for AnswerInput {
             log::info!("Received KeyboardMsg: {e}");
             AnswerInputMsg::KeyboardInput(e)
         });
-        let answer_classes = vec![
+        let mut answer_classes = vec![
             "h-80",
             "w-full",
             "grid",
@@ -81,13 +91,17 @@ impl Component for AnswerInput {
             "text-white",
         ];
 
+        if self.verification_pending {
+            answer_classes.push("hidden");
+        }
+
         html! {
             <div class={classes!("w-full", "h-full", "grid", "place-content-center")}>
                 <div class={classes!("grid", "w-80", "md:w-100", "lg:w-150",  "h-full", "gap-y-5", "justify-items-center", "content-center")}>
                     <div class={classes!(answer_classes)}>
                         <Word text={self.answer.clone()} animate={self.animate}></Word>
                     </div>
-                    <Keyboard callback={onkeyclick}></Keyboard>
+                    <Keyboard display={!self.verification_pending} callback={onkeyclick}></Keyboard>
                     <Snackbar message={self.toast_msg.as_ref().cloned().unwrap_or(String::new())} display={self.toast_msg.is_some()}></Snackbar>
                 </div>
             </div>

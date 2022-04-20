@@ -15,6 +15,7 @@ use crate::{
 const PROMPT: &'static str = "Enter name";
 pub enum RegisterMsg {
     KeyboardInput(KeyboardMsg),
+    VerifyUserResponse(bool),
     RegisterUserResponse(Result<(), reqwasm::Error>),
 }
 
@@ -23,6 +24,7 @@ pub struct RegisterProps;
 
 pub struct Register {
     user_name: Vec<char>,
+    verification_pending: bool,
     toast_msg: Option<String>,
 }
 
@@ -32,13 +34,12 @@ impl Component for Register {
     type Properties = RegisterProps;
 
     fn create(ctx: &Context<Self>) -> Self {
-        if check_user_set().is_some() {
-            ctx.link().history().unwrap().push(Route::Menu);
-        }
-        log::info!("Setting toast msg");
+        ctx.link()
+            .send_future(async { RegisterMsg::VerifyUserResponse(check_user_set().await) });
         Self {
             user_name: PROMPT.chars().collect(),
-            toast_msg: Some("Please register to begin".to_owned()),
+            verification_pending: true,
+            toast_msg: Some("Loading".to_owned()),
         }
     }
 
@@ -56,6 +57,15 @@ impl Component for Register {
                 log::error!("Error registering user: {error:?}");
                 self.toast_msg = Some("Error registering user".to_owned());
                 true
+            }
+            RegisterMsg::VerifyUserResponse(false) => {
+                self.verification_pending = false;
+                self.toast_msg = Some("Please register to begin".to_owned());
+                true
+            }
+            RegisterMsg::VerifyUserResponse(true) => {
+                ctx.link().history().unwrap().push(Route::Menu);
+                false
             }
         }
     }

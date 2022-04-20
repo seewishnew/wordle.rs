@@ -7,6 +7,7 @@ use crate::{
     snackbar::Snackbar,
     Route,
 };
+use gloo::timers::callback::Timeout;
 use reqwasm::http::Request;
 use web_sys::RequestCredentials;
 #[allow(unused, dead_code)]
@@ -52,6 +53,7 @@ pub enum WordleResponse {
 }
 pub enum WordleMsg {
     KeyboardInput(KeyboardMsg),
+    VerifyUserResponse(bool),
     ApiResponse(WordleResponse),
 }
 
@@ -67,6 +69,7 @@ pub struct Wordle {
     game_id: String,
     cell_i: usize,
     word_i: usize,
+    verification_pending: bool,
     state: Vec<Vec<CharCellState>>,
     correctness_map: [Correctness; 28],
     toast_msg: Option<String>,
@@ -78,29 +81,10 @@ impl Component for Wordle {
     type Properties = WordleProps;
 
     fn create(ctx: &Context<Self>) -> Self {
-        if check_user_set().is_none() {
-            ctx.link().history().unwrap().push(Route::Register);
-        }
+        ctx.link()
+            .send_future(async { WordleMsg::VerifyUserResponse(check_user_set().await) });
 
         let Self::Properties { game_id } = ctx.props();
-        let url = format!("/api/v1/game/{game_id}/state");
-        ctx.link().send_future(async move {
-            Self::Message::ApiResponse(WordleResponse::GetState(
-                match Request::get(&url)
-                    .credentials(RequestCredentials::Include)
-                    .send()
-                    .await
-                {
-                    Ok(resp) => resp.json::<GetStateResponse>().await,
-                    Err(error) => {
-                        log::error!(
-                            "Something went wrong while trying to load game state! {error:?}"
-                        );
-                        Err(error)
-                    }
-                },
-            ))
-        });
 
         Self {
             animate: false,
@@ -109,14 +93,45 @@ impl Component for Wordle {
             game_id: game_id.into(),
             cell_i: 0,
             word_i: 0,
+            verification_pending: true,
             state: vec![vec![CharCellState::Empty; 5]; 6],
             correctness_map: [Correctness::Guess; 28],
-            toast_msg: None,
+            toast_msg: Some("Loading".to_owned()),
         }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
+            Self::Message::VerifyUserResponse(false) => {
+                ctx.link().history().unwrap().push(Route::Register);
+                false
+            }
+            Self::Message::VerifyUserResponse(true) => {
+                self.verification_pending = false;
+                let Self::Properties { game_id } = ctx.props();
+                let url = format!("/api/v1/game/{game_id}/state");
+                ctx.link().send_future(async move {
+                    Self::Message::ApiResponse(WordleResponse::GetState(
+                        match Request::get(&url)
+                            .credentials(RequestCredentials::Include)
+                            .send()
+                            .await
+                        {
+                            Ok(resp) => resp.json::<GetStateResponse>().await,
+                            Err(error) => {
+                                log::error!(
+                            "Something went wrong while trying to load game state! {error:?}"
+                        );
+                                Err(error)
+                            }
+                        },
+                    ))
+                });
+
+                self.toast_msg = Some("Loading game state".to_owned());
+                true
+            }
+
             Self::Message::KeyboardInput(msg) => self.keydown_handler(ctx, msg),
             Self::Message::ApiResponse(WordleResponse::PlayGame(Ok(resp))) => {
                 log::info!("Play submitted to leaderboard");
@@ -143,7 +158,7 @@ impl Component for Wordle {
                 if has_won {
                     self.toast_msg = Some("You won!".to_owned());
                 } else if self.game_over {
-                    self.toast_msg = Some("Game over!".to_owned());
+                    self.toast_msg = Some("Game over :(".to_owned());
                 }
                 true
             }
@@ -179,8 +194,10 @@ impl Component for Wordle {
                 self.loading = false;
                 if has_won {
                     self.toast_msg = Some("You won!".to_owned());
+                    main_menu_timer(ctx, 10_000);
                 } else if self.game_over {
                     self.toast_msg = Some("Game over!".to_owned());
+                    main_menu_timer(ctx, 7_000);
                 }
                 true
             }
@@ -218,6 +235,11 @@ impl Component for Wordle {
 
         }
     }
+}
+
+fn main_menu_timer(ctx: &Context<Wordle>, delay: u32) {
+    let link = ctx.link().clone();
+    Timeout::new(delay, move || link.history().unwrap().push(Route::Menu)).forget();
 }
 
 impl Wordle {

@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 
-pub const COOKIE_USER_NAME: &'static str = "name";
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CreateUserIdRequest {
     pub name: String,
